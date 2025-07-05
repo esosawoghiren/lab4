@@ -86,19 +86,32 @@ public class KernelFunctions
 		prc.pageTable[vpage].count++;
 
 	}
-
 	// FIFO page Replacement algorithm
+	//queue to store pages
+	static Queue<Integer> fifoQueue = new LinkedList<>();
+	
 	public static void pageReplAlgorithmFIFO(int vpage, Process prc)
 	{
-	   int vPageReplaced;  // Page to be replaced
 	   int frame;	// frame to receive new page
-	   // Find page to be replaced
-	   frame = prc.allocatedFrames[prc.framePtr];   // get next available frame
-	   vPageReplaced = findvPage(prc.pageTable,frame);     // find current page using it (i.e written to disk)
-	   prc.pageTable[vPageReplaced].valid = false;  // Old page is replaced.
+
+	   //no need to update if the page is in memory
+	   if(prc.pageTable[vpage].valid) return;
+
+	   // get the next availiable frame if there's space in the queue
+	   if(fifoQueue.size() < prc.allocatedFrames.length){
+			frame = prc.allocatedFrames[fifoQueue.size()];
+	   }else{
+			//if there aren't free frames then replace the oldeest page(head)
+			int vPageReplaced = fifoQueue.poll();
+			frame = prc.pageTable[vPageReplaced].frameNum;
+			prc.pageTable[vPageReplaced].valid = false; //old page is replaced
+	   }
+		
 	   prc.pageTable[vpage].frameNum = frame;   // load page into the frame and update table
 	   prc.pageTable[vpage].valid = true;             // make the page valid
-	   prc.framePtr = (prc.framePtr+1) % prc.allocatedFrames.length;  // point to next frame in list
+
+	   fifoQueue.offer(vpage);
+	
 	}
 
 	// CLOCK page Replacement algorithm
