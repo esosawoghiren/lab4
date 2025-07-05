@@ -1,3 +1,4 @@
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -88,32 +89,43 @@ public class KernelFunctions
 
 	}
 	// FIFO page Replacement algorithm
-	//queue to store pages
-	static Queue<Integer> fifoQueue = new LinkedList<>();
-	
 	public static void pageReplAlgorithmFIFO(int vpage, Process prc)
 	{
-	   int frame;	// frame to receive new page
+		int frame;
+		int vPageReplaced;
 
-	   //no need to update if the page is in memory
-	   if(prc.pageTable[vpage].valid) return;
+		for(int i = 0; i < prc.pageTable.length; i++){
+			if (prc.fifoSet.size() < prc.allocatedFrames.length){
+				// no updates if page not allocated
+				if (!prc.fifoSet.contains(vpage)) {
+					frame = prc.allocatedFrames[prc.fifoSet.size()]; // next free frame
+					// Load the page
+					prc.pageTable[vpage].frameNum = frame;
+					prc.pageTable[vpage].valid = true;
+					// Track it
+					prc.fifoSet.add(vpage);
+					prc.fifoQueue.add(vpage);
+				}
+			}else{
+				if (!prc.fifoSet.contains(vpage)){
+					vPageReplaced = prc.fifoQueue.poll();
+					prc.fifoSet.remove(vPageReplaced);
 
-	   // get the next availiable frame if there's space in the queue
-	   if(fifoQueue.size() < prc.allocatedFrames.length){
-			frame = prc.allocatedFrames[fifoQueue.size()];
-	   }else{
-			//if there aren't free frames then replace the oldeest page(head)
-			int vPageReplaced = fifoQueue.poll();
-			frame = prc.pageTable[vPageReplaced].frameNum;
-			prc.pageTable[vPageReplaced].valid = false; //old page is replaced
-	   }
-		
-	   prc.pageTable[vpage].frameNum = frame;   // load page into the frame and update table
-	   prc.pageTable[vpage].valid = true;             // make the page valid
+					frame = prc.pageTable[vPageReplaced].frameNum;
+					prc.pageTable[vPageReplaced].valid = false;
 
-	   fifoQueue.offer(vpage);
-	
-	}
+					// Load new page into freed frame
+					prc.pageTable[vpage].frameNum = frame;
+					prc.pageTable[vpage].valid = true;
+
+					// Add new page to structures
+					prc.fifoSet.add(vpage);
+					prc.fifoQueue.offer(vpage);
+				}
+			}
+		}
+
+}
 
 	// CLOCK page Replacement algorithm
 	public static void pageReplAlgorithmCLOCK(int vpage, Process prc)

@@ -244,6 +244,9 @@ class Process
 	int numDataPages;   // Data segment
 	int numStackPages;   // Stack segment
 	int numHeapPages;   // Heap segment
+	//queue to store pages
+	public Queue<Integer> fifoQueue = new LinkedList<>();
+	public Set<Integer> fifoSet = new HashSet<>();
 
 	public Process(int pid, int nCode, int nData, int nStack, int nHeap, int meanMA, int sd1, int sd2, int sd3)
 	{
