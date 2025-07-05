@@ -1,0 +1,5 @@
+{
+  "java.project.referencedLibraries": [
+    "colt.jar", "EvSchedSimul.jar"
+  ]
+}
