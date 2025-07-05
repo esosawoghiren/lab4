@@ -96,36 +96,37 @@ public class KernelFunctions
 
 		for(int i = 0; i < prc.pageTable.length; i++){
 			if (prc.fifoSet.size() < prc.allocatedFrames.length){
-				// no updates if page not allocated
+				//add page into the set and queue if it's not present
 				if (!prc.fifoSet.contains(vpage)) {
-					frame = prc.allocatedFrames[prc.fifoSet.size()]; // next free frame
-					// Load the page
+					frame = prc.allocatedFrames[prc.fifoSet.size()]; // assign next free frame
+					// load the page
 					prc.pageTable[vpage].frameNum = frame;
 					prc.pageTable[vpage].valid = true;
-					// Track it
+					// add to both set and queue
 					prc.fifoSet.add(vpage);
 					prc.fifoQueue.add(vpage);
 				}
+				//we perform the fifo if the set is full
 			}else{
-				if (!prc.fifoSet.contains(vpage)){
+				//check to see if the page isn't already present
+				if (!prc.fifoSet.contains(vpage)) {
+
+					//remove head object in queue and set
 					vPageReplaced = prc.fifoQueue.poll();
 					prc.fifoSet.remove(vPageReplaced);
-
+					//get frame of replaced page and set it to unallocated
 					frame = prc.pageTable[vPageReplaced].frameNum;
 					prc.pageTable[vPageReplaced].valid = false;
-
-					// Load new page into freed frame
+					// load new page into replaced page spot
 					prc.pageTable[vpage].frameNum = frame;
 					prc.pageTable[vpage].valid = true;
-
-					// Add new page to structures
+					// add new page to set and queue
 					prc.fifoSet.add(vpage);
-					prc.fifoQueue.offer(vpage);
+					prc.fifoQueue.add(vpage);
 				}
 			}
 		}
-
-}
+	}
 
 	// CLOCK page Replacement algorithm
 	public static void pageReplAlgorithmCLOCK(int vpage, Process prc)
