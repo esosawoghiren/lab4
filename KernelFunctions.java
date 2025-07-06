@@ -1,6 +1,4 @@
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
+
 
 public class KernelFunctions
 {
@@ -88,44 +86,19 @@ public class KernelFunctions
 		prc.pageTable[vpage].count++;
 
 	}
+
 	// FIFO page Replacement algorithm
 	public static void pageReplAlgorithmFIFO(int vpage, Process prc)
 	{
-		int frame;
-		int vPageReplaced;
-
-		for(int i = 0; i < prc.pageTable.length; i++){
-			if (prc.fifoSet.size() < prc.allocatedFrames.length){
-				//add page into the set and queue if it's not present
-				if (!prc.fifoSet.contains(vpage)) {
-					frame = prc.allocatedFrames[prc.fifoSet.size()]; // assign next free frame
-					// load the page
-					prc.pageTable[vpage].frameNum = frame;
-					prc.pageTable[vpage].valid = true;
-					// add to both set and queue
-					prc.fifoSet.add(vpage);
-					prc.fifoQueue.add(vpage);
-				}
-				//we perform the fifo if the set is full
-			}else{
-				//check to see if the page isn't already present
-				if (!prc.fifoSet.contains(vpage)) {
-
-					//remove head object in queue and set
-					vPageReplaced = prc.fifoQueue.poll();
-					prc.fifoSet.remove(vPageReplaced);
-					//get frame of replaced page and set it to unallocated
-					frame = prc.pageTable[vPageReplaced].frameNum;
-					prc.pageTable[vPageReplaced].valid = false;
-					// load new page into replaced page spot
-					prc.pageTable[vpage].frameNum = frame;
-					prc.pageTable[vpage].valid = true;
-					// add new page to set and queue
-					prc.fifoSet.add(vpage);
-					prc.fifoQueue.add(vpage);
-				}
-			}
-		}
+	   int vPageReplaced;  // Page to be replaced
+	   int frame;	// frame to receive new page
+	   // Find page to be replaced
+	   frame = prc.allocatedFrames[prc.framePtr];   // get next available frame
+	   vPageReplaced = findvPage(prc.pageTable,frame);
+	   prc.pageTable[vPageReplaced].valid = false;  // Old page is replaced.
+	   prc.pageTable[vpage].frameNum = frame;   // load page into the frame and update table
+	   prc.pageTable[vpage].valid = true;             // make the page valid
+	   prc.framePtr = (prc.framePtr+1) % prc.allocatedFrames.length;  // point to next frame in list
 	}
 
 	// CLOCK page Replacement algorithm
@@ -207,13 +180,13 @@ public class KernelFunctions
 				prc.pageTable[vpage].frameNum = frame;
 				prc.pageTable[vpage].valid = true;
 				prc.pageTable[vpage].used = true;
-				prc.pageTable[vpage].count = 1;
+				prc.pageTable[vpage].count = 3;
 				prc.framePtr = (prc.framePtr + 1) % prc.allocatedFrames.length;
 				return;
 			}
 
-			// Halve the count to age the counts
-			prc.pageTable[vPageReplaced].count /= 2;
+			// divide the count by 3 to age the counts
+			prc.pageTable[vPageReplaced].count /= 3;
 
 			prc.framePtr = (prc.framePtr + 1) % prc.allocatedFrames.length;
 
@@ -221,20 +194,20 @@ public class KernelFunctions
 			if(prc.framePtr == startPtr) break;
 		}
 
-		// If we get here, all pages had count > 0, so replace the one with lowest count
+		// replace the one with lowest count
 		if(lowestCountPage != -1) {
 			frame = prc.pageTable[lowestCountPage].frameNum;
 			prc.pageTable[lowestCountPage].valid = false;
 			prc.pageTable[vpage].frameNum = frame;
 			prc.pageTable[vpage].valid = true;
 			prc.pageTable[vpage].used = true;
-			prc.pageTable[vpage].count = 1;
+			prc.pageTable[vpage].count = 3;
 			prc.framePtr = (prc.framePtr + 1) % prc.allocatedFrames.length;
 		}
 
 	}
 
-	// finds the virtual page loaded in the specified frame fr
+	// finds the virtual page loaded in the specified frame
 	public static int findvPage(PgTblEntry [] ptbl, int fr)
 	{
 	   int i;
