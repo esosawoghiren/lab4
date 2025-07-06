@@ -223,8 +223,8 @@ public class KernelFunctions
 				return;
 			}
 
-			// divide the count by 3 to age the counts
-			prc.pageTable[vPageReplaced].count /= 3;
+			// divide the count by 3.5 to age the counts
+			prc.pageTable[vPageReplaced].count /= 3.5;
 
 			prc.framePtr = (prc.framePtr + 1) % prc.allocatedFrames.length;
 
