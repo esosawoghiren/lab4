@@ -213,7 +213,7 @@ public class KernelFunctions
 				prc.pageTable[vpage].frameNum = frame;
 				prc.pageTable[vpage].valid = true;
 				prc.pageTable[vpage].used = true;
-				prc.pageTable[vpage].count = 3;
+				prc.pageTable[vpage].count /= 3.5;
 				prc.framePtr = (prc.framePtr + 1) % prc.allocatedFrames.length;
 				return;
 			}
