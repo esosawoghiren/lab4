@@ -89,7 +89,7 @@ public class KernelFunctions
 	public static void pageReplAlgorithmFIFO(int vpage, Process prc)
 	{
 	   int frame;
-	   Integer vPageReplaced;
+	   int vPageReplaced;
 
 	   if (prc.pageTable[vpage].valid){
 		   return;
@@ -103,7 +103,6 @@ public class KernelFunctions
 				}
 			}
     	}
-
 	   
 		if (prc.fifoSet.size() < prc.allocatedFrames.length){
 			//add page into the set and queue if it's not present
@@ -121,10 +120,6 @@ public class KernelFunctions
 			if (!prc.fifoSet.contains(vpage)) {
 				//remove head object in queue and set
 				vPageReplaced = prc.fifoQueue.poll();
-				if(vPageReplaced == null){
-					return;
-				}
-
 				prc.fifoSet.remove(vPageReplaced);
 				//get frame of replaced page and set it to unallocated
 				frame = prc.pageTable[vPageReplaced].frameNum;
